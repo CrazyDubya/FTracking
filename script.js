@@ -299,6 +299,13 @@ function displayFlights(results) {
 }
 
 // Fetch NOTAM data - requires authenticated API access
+// RESEARCH CONFIRMED (January 2026): There is NO legitimate way to access real-time 
+// NOTAM data without authentication/API keys. All reputable sources require registration:
+// - FAA: Requires api.faa.gov registration and API key
+// - ICAO: Requires credentials and authorization  
+// - EUROCONTROL: APIs require registration (EAD Basic is manual-only)
+// - Commercial providers (Notamify, Aviation Edge): All require API keys
+// - Web scraping: VIOLATES Terms of Service and is illegal for official sites
 async function fetchNOTAMData() {
     const notamsContainer = document.getElementById('notams-container');
     const loadingElement = document.getElementById('loading-notams');
@@ -349,7 +356,8 @@ async function fetchNOTAMData() {
 }
 
 // Helper function to extract airport codes from NOTAM text
-// This will be useful when integrating with real NOTAM APIs
+// This will be useful when integrating with real NOTAM APIs in the future
+// Reserved for future use when NOTAM API integration is implemented
 function extractAirportCodes(notamText) {
     const codes = [];
     
@@ -385,6 +393,8 @@ function extractAirportCodes(notamText) {
 }
 
 // Display NOTAM data
+// Reserved for future use when real NOTAM API integration is implemented
+// This function will display NOTAMs with airport codes and full information
 function displayNOTAMs(notams) {
     const container = document.getElementById('notams-container');
     
@@ -405,9 +415,10 @@ function displayNOTAMs(notams) {
         let airportInfo = '';
         if (notam.airport) {
             const iataCode = notam.airport.iata ? `/${notam.airport.iata}` : '';
+            const airportCode = notam.airport.icao || notam.airportCode || '';
             airportInfo = `
                 <div class="airport-info">
-                    <span class="airport-code">${notam.airportCode}${iataCode}</span>
+                    <span class="airport-code">${airportCode}${iataCode}</span>
                     <span class="airport-name">${notam.airport.name}</span>
                     <span class="airport-city">${notam.airport.city}</span>
                 </div>

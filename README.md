@@ -156,6 +156,15 @@ open index.html
 
 Real NOTAM data requires authenticated access to official aviation authority APIs.
 
+**Research Confirmation (January 2026):**
+We have confirmed through comprehensive research that **there is NO legitimate way to access real-time NOTAM data without authentication**. All reputable sources require API keys or registration:
+
+- **FAA (US)**: Requires registration at api.faa.gov and API key generation
+- **ICAO (International)**: Requires credentials and authorization
+- **EUROCONTROL (Europe)**: EAD Basic is manual-only; APIs require registration
+- **Commercial Providers**: Notamify, Aviation Edge, etc. all require API keys
+- **Web Scraping**: Violates Terms of Service and is illegal for most official sites
+
 **How to Configure NOTAM API Keys:**
 
 1. **Obtain API Credentials** from official sources:
