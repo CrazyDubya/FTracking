@@ -22,6 +22,36 @@ const CONFIG = {
             icao: 'OIIX',
             bounds: { minLat: 25.1, maxLat: 39.8, minLon: 44.0, maxLon: 63.3 }
         }
+    },
+    // Airport codes database for Middle East region
+    AIRPORTS: {
+        // Israel
+        'LLBG': { icao: 'LLBG', iata: 'TLV', name: 'Ben Gurion International Airport', city: 'Tel Aviv' },
+        'LLOV': { icao: 'LLOV', iata: 'VDA', name: 'Ovda Airport', city: 'Ovda' },
+        'LLER': { icao: 'LLER', iata: 'ETH', name: 'Eilat Airport', city: 'Eilat' },
+        'LLHA': { icao: 'LLHA', iata: 'HFA', name: 'Haifa Airport', city: 'Haifa' },
+        'LLSD': { icao: 'LLSD', iata: 'SDV', name: 'Sde Dov Airport', city: 'Tel Aviv' },
+        // Jordan
+        'OJAI': { icao: 'OJAI', iata: 'AMM', name: 'Queen Alia International Airport', city: 'Amman' },
+        'OJAM': { icao: 'OJAM', iata: 'ADJ', name: 'Marka International Airport', city: 'Amman' },
+        'OJAQ': { icao: 'OJAQ', iata: 'AQJ', name: 'King Hussein International Airport', city: 'Aqaba' },
+        // Iraq
+        'ORBI': { icao: 'ORBI', iata: 'BGW', name: 'Baghdad International Airport', city: 'Baghdad' },
+        'ORBB': { icao: 'ORBB', iata: 'BSR', name: 'Basra International Airport', city: 'Basra' },
+        'ORMM': { icao: 'ORMM', iata: 'EBL', name: 'Erbil International Airport', city: 'Erbil' },
+        'ORBM': { icao: 'ORBM', iata: 'OSM', name: 'Mosul International Airport', city: 'Mosul' },
+        'ORSU': { icao: 'ORSU', iata: 'ISU', name: 'Sulaymaniyah International Airport', city: 'Sulaymaniyah' },
+        // Iran
+        'OIII': { icao: 'OIII', iata: 'IKA', name: 'Imam Khomeini International Airport', city: 'Tehran' },
+        'OIIE': { icao: 'OIIE', iata: 'THR', name: 'Mehrabad International Airport', city: 'Tehran' },
+        'OISS': { icao: 'OISS', iata: 'SYZ', name: 'Shiraz International Airport', city: 'Shiraz' },
+        'OIAW': { icao: 'OIAW', iata: 'AWZ', name: 'Ahvaz International Airport', city: 'Ahvaz' },
+        'OIMM': { icao: 'OIMM', iata: 'KSH', name: 'Shahid Ashrafi Esfahani Airport', city: 'Kermanshah' },
+        'OIKB': { icao: 'OIKB', iata: 'BND', name: 'Bandar Abbas International Airport', city: 'Bandar Abbas' },
+        'OICC': { icao: 'OICC', iata: 'KER', name: 'Kerman Airport', city: 'Kerman' },
+        'OIFM': { icao: 'OIFM', iata: 'IFN', name: 'Isfahan International Airport', city: 'Isfahan' },
+        'OITT': { icao: 'OITT', iata: 'TBZ', name: 'Tabriz International Airport', city: 'Tabriz' },
+        'OIMJ': { icao: 'OIMJ', iata: 'MHD', name: 'Mashhad International Airport', city: 'Mashhad' }
     }
 };
 
@@ -179,13 +209,29 @@ function displayFlights(results) {
         }
     });
 
-    if (allFlights.length === 0) {
-        container.innerHTML = createEmptyState('✈️', 'No active flights detected in the monitored airspace regions.');
+    // Filter for potential disruptions: grounded flights or very low/slow flights
+    // This filters OUT actively flying aircraft to show only potential disruptions
+    // Criteria: on_ground = true OR altitude < 1000m OR velocity < 50 km/h
+    const disruptedFlights = allFlights.filter(flight => {
+        const velocityKmh = flight.velocity ? flight.velocity * 3.6 : 0;
+        const altitudeMeters = flight.altitude || 0;
+        
+        // Show flights that are:
+        // 1. On the ground (on_ground = true)
+        // 2. At very low altitude (< 1000m) suggesting airport vicinity
+        // 3. Moving very slowly (< 50 km/h) suggesting ground operations or issues
+        return flight.on_ground === true || 
+               altitudeMeters < 1000 || 
+               velocityKmh < 50;
+    });
+
+    if (disruptedFlights.length === 0) {
+        container.innerHTML = createEmptyState('✅', 'No flight disruptions detected. All flights appear to be operating normally.');
         return;
     }
 
     // Sort by country and callsign
-    allFlights.sort((a, b) => {
+    disruptedFlights.sort((a, b) => {
         if (a.country !== b.country) {
             return a.country.localeCompare(b.country);
         }
@@ -194,10 +240,10 @@ function displayFlights(results) {
 
     // Create HTML for flights
     let html = '';
-    allFlights.slice(0, 50).forEach(flight => { // Limit to 50 flights for performance
+    disruptedFlights.slice(0, 50).forEach(flight => { // Limit to 50 flights for performance
         const altitude = flight.altitude ? Math.round(flight.altitude) + 'm' : 'N/A';
         const velocity = flight.velocity ? Math.round(flight.velocity * 3.6) + 'km/h' : 'N/A';
-        const status = flight.on_ground ? '🛬 On Ground' : '✈️ In Flight';
+        const status = flight.on_ground ? '🛬 On Ground' : '⚠️ Low Altitude/Speed';
         
         html += `
             <div class="data-item" data-country="${flight.country}">
@@ -251,10 +297,54 @@ async function fetchNOTAMData() {
     }
 }
 
+// Helper function to extract airport codes from NOTAM text
+// This will be useful when integrating with real NOTAM APIs
+function extractAirportCodes(notamText) {
+    const codes = [];
+    
+    // Match 4-letter ICAO codes (e.g., LLBG, OJAI, ORBI)
+    const icaoPattern = /\b([A-Z]{4})\b/g;
+    let match;
+    while ((match = icaoPattern.exec(notamText)) !== null) {
+        const code = match[1];
+        // Check if this code exists in our airport database
+        if (CONFIG.AIRPORTS[code]) {
+            codes.push({
+                code: code,
+                airport: CONFIG.AIRPORTS[code]
+            });
+        }
+    }
+    
+    // Match 3-letter IATA codes (e.g., TLV, AMM, BGW)
+    const iataPattern = /\b([A-Z]{3})\b/g;
+    while ((match = iataPattern.exec(notamText)) !== null) {
+        const code = match[1];
+        // Find airport by IATA code
+        const airport = Object.values(CONFIG.AIRPORTS).find(a => a.iata === code);
+        if (airport && !codes.find(c => c.code === airport.icao)) {
+            codes.push({
+                code: airport.icao,
+                airport: airport
+            });
+        }
+    }
+    
+    return codes;
+}
+
 // Generate sample NOTAMs (replace with real API in production)
 async function generateSampleNOTAMs() {
     const countries = Object.keys(CONFIG.AIRSPACE_BOUNDARIES);
     const notams = [];
+    
+    // Get airports for each country
+    const airportsByCountry = {
+        israel: ['LLBG', 'LLOV', 'LLER', 'LLHA'],
+        jordan: ['OJAI', 'OJAM', 'OJAQ'],
+        iraq: ['ORBI', 'ORBB', 'ORMM', 'ORSU'],
+        iran: ['OIII', 'OIIE', 'OISS', 'OIAW', 'OIMM', 'OIKB', 'OIFM']
+    };
     
     // Update NOTAM counts
     countries.forEach(country => {
@@ -262,11 +352,18 @@ async function generateSampleNOTAMs() {
         document.getElementById(`${country}-notams`).textContent = count;
         
         for (let i = 0; i < count; i++) {
+            // Select a random airport for this country
+            const countryAirports = airportsByCountry[country] || [];
+            const airportCode = countryAirports[Math.floor(Math.random() * countryAirports.length)];
+            const airport = CONFIG.AIRPORTS[airportCode];
+            
             notams.push({
                 country: country,
                 id: `${CONFIG.AIRSPACE_BOUNDARIES[country].icao}-${Date.now()}-${i}`,
+                airportCode: airportCode,
+                airport: airport,
                 type: ['Airspace Restriction', 'Airport Closure', 'Navigation Aid Outage', 'Military Exercise'][Math.floor(Math.random() * 4)],
-                description: generateNOTAMDescription(),
+                description: generateNOTAMDescription(airport),
                 effectiveDate: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
                 expiryDate: new Date(Date.now() + Math.random() * 14 * 24 * 60 * 60 * 1000)
             });
@@ -276,15 +373,16 @@ async function generateSampleNOTAMs() {
     return notams;
 }
 
-function generateNOTAMDescription() {
+function generateNOTAMDescription(airport) {
+    const airportName = airport ? airport.name : 'the airport';
     const descriptions = [
-        'Temporary flight restrictions in effect due to special operations.',
-        'Runway closure for maintenance - use alternate runway.',
-        'Navigation aid temporarily out of service.',
-        'Increased military activity - exercise caution.',
-        'Airspace temporarily restricted - prior permission required.',
-        'Airport operating with reduced capacity.',
-        'Temporary obstacles in vicinity of airport.'
+        `Temporary flight restrictions in effect at ${airportName} due to special operations.`,
+        `Runway closure for maintenance at ${airportName} - use alternate runway.`,
+        `Navigation aid temporarily out of service at ${airportName}.`,
+        `Increased military activity near ${airportName} - exercise caution.`,
+        `Airspace temporarily restricted around ${airportName} - prior permission required.`,
+        `${airportName} operating with reduced capacity.`,
+        `Temporary obstacles in vicinity of ${airportName}.`
     ];
     return descriptions[Math.floor(Math.random() * descriptions.length)];
 }
@@ -306,12 +404,26 @@ function displayNOTAMs(notams) {
         const effectiveDate = notam.effectiveDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         const expiryDate = notam.expiryDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         
+        // Format airport information prominently
+        let airportInfo = '';
+        if (notam.airport) {
+            const iataCode = notam.airport.iata ? `/${notam.airport.iata}` : '';
+            airportInfo = `
+                <div class="airport-info">
+                    <span class="airport-code">${notam.airportCode}${iataCode}</span>
+                    <span class="airport-name">${notam.airport.name}</span>
+                    <span class="airport-city">${notam.airport.city}</span>
+                </div>
+            `;
+        }
+        
         html += `
             <div class="data-item warning" data-country="${notam.country}">
                 <div class="data-item-header">
                     <div class="data-item-title">${notam.type}</div>
                     <span class="data-item-badge ${notam.country}">${CONFIG.AIRSPACE_BOUNDARIES[notam.country].name}</span>
                 </div>
+                ${airportInfo}
                 <div class="data-item-content">
                     ${notam.description}
                 </div>
