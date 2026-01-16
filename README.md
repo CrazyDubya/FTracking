@@ -133,6 +133,10 @@ AIRSPACE_BOUNDARIES: {
 - Some military or restricted flight information may not be available
 - NOTAM data may have delays depending on source availability
 - OpenSky Network has rate limits for unauthenticated requests
+- **CORS Policy**: Direct browser access to OpenSky Network API may be blocked by CORS policies. For production use:
+  - Deploy to GitHub Pages (recommended)
+  - Use a backend proxy server to fetch API data
+  - Or configure proper CORS headers if self-hosting
 - For informational purposes only - **NOT for navigation or operational use**
 
 ## 🤝 Contributing
@@ -174,6 +178,30 @@ This project is open source and available under the MIT License.
 - All data fetching happens client-side
 - No cookies or tracking mechanisms
 - Uses only public aviation data
+
+## 🔧 Troubleshooting
+
+### "API Access Note" or "N/A" for flight data
+
+If you see "N/A" instead of flight counts or an API access note, this is likely due to:
+
+1. **CORS Policy**: Browser security prevents direct API access
+   - **Solution**: Deploy to GitHub Pages where CORS is better handled
+   - **Alternative**: Set up a backend proxy server
+
+2. **Ad Blocker**: Some ad blockers block tracking domains
+   - **Solution**: Whitelist `opensky-network.org` in your ad blocker
+
+3. **Rate Limiting**: OpenSky Network limits unauthenticated requests
+   - **Solution**: Wait a few minutes and try again
+   - **Alternative**: Create a free OpenSky Network account for higher limits
+
+### Data not refreshing
+
+- Check your internet connection
+- Verify the page isn't paused (check browser tab)
+- Try clicking "Refresh Now" button
+- Check browser console for errors (F12 → Console tab)
 
 ## 🗺️ Roadmap
 

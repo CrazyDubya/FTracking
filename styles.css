@@ -391,6 +391,27 @@ footer p {
     color: var(--text-secondary);
 }
 
+/* Info State */
+.info-state {
+    background-color: #eff6ff;
+    border: 2px solid var(--primary-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.info-state-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.info-state-message {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     header h1 {

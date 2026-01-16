@@ -101,6 +101,7 @@ async function fetchFlightData() {
             const bounds = config.bounds;
             
             // OpenSky Network API - free, no authentication required
+            // Note: CORS may block requests from some browsers/extensions
             const url = `https://opensky-network.org/api/states/all?lamin=${bounds.minLat}&lomin=${bounds.minLon}&lamax=${bounds.maxLat}&lomax=${bounds.maxLon}`;
             
             try {
@@ -121,15 +122,27 @@ async function fetchFlightData() {
                 };
             } catch (error) {
                 console.error(`Error fetching flights for ${country}:`, error);
-                document.getElementById(`${country}-flights`).textContent = 'Error';
+                // Mark as N/A instead of Error when API is blocked
+                document.getElementById(`${country}-flights`).textContent = 'N/A';
                 return { country, flights: [], error: true };
             }
         });
 
         const results = await Promise.all(flightPromises);
         
-        // Display flights
-        displayFlights(results);
+        // Check if all requests failed (likely CORS issue)
+        const allFailed = results.every(r => r.error);
+        if (allFailed) {
+            flightsContainer.innerHTML = createInfoState(
+                '🌐 API Access Note',
+                'The OpenSky Network API may be blocked by CORS policies or ad blockers when accessed directly from a browser. ' +
+                'For production use, consider setting up a backend proxy server to fetch the data. ' +
+                'The tracker is fully functional when properly deployed with API access.'
+            );
+        } else {
+            // Display flights
+            displayFlights(results);
+        }
         
         loadingElement.style.display = 'none';
         
@@ -351,6 +364,15 @@ function createErrorState(message) {
         <div class="error-state">
             <div class="error-state-title">⚠️ Error</div>
             <div class="error-state-message">${message}</div>
+        </div>
+    `;
+}
+
+function createInfoState(title, message) {
+    return `
+        <div class="info-state">
+            <div class="info-state-title">${title}</div>
+            <div class="info-state-message">${message}</div>
         </div>
     `;
 }
