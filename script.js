@@ -43,16 +43,19 @@ function initializeEventListeners() {
         fetchAllData();
     });
 
-    // Filter checkboxes
-    ['israel', 'jordan', 'iraq', 'iran'].forEach(country => {
-        document.getElementById(`filter-${country}`).addEventListener('change', (e) => {
-            if (e.target.checked) {
-                activeFilters.add(country);
-            } else {
-                activeFilters.delete(country);
-            }
-            applyFilters();
-        });
+    // Filter checkboxes - dynamically based on configured airspaces
+    Object.keys(CONFIG.AIRSPACE_BOUNDARIES).forEach(country => {
+        const filterElement = document.getElementById(`filter-${country}`);
+        if (filterElement) {
+            filterElement.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    activeFilters.add(country);
+                } else {
+                    activeFilters.delete(country);
+                }
+                applyFilters();
+            });
+        }
     });
 }
 
