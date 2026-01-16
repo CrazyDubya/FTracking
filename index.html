@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Middle East Flight Tracker - Cancellations & NOTAMs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>✈️ Middle East Flight Tracker</h1>
+        <p class="subtitle">Real-time Flight Cancellations and NOTAMs for Israeli, Jordan, Iraqi, and Iranian Airspace</p>
+        <div class="last-updated">Last Updated: <span id="last-update-time">Loading...</span></div>
+    </header>
+
+    <main>
+        <div class="controls">
+            <button id="refresh-btn" class="btn-primary">🔄 Refresh Now</button>
+            <div class="auto-refresh-status">
+                <span id="auto-refresh-status">Auto-refresh: Every 5 minutes</span>
+            </div>
+        </div>
+
+        <div class="airspace-filters">
+            <h3>Filter by Airspace:</h3>
+            <label class="filter-checkbox">
+                <input type="checkbox" id="filter-israel" checked> 🇮🇱 Israel
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" id="filter-jordan" checked> 🇯🇴 Jordan
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" id="filter-iraq" checked> 🇮🇶 Iraq
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" id="filter-iran" checked> 🇮🇷 Iran
+            </label>
+        </div>
+
+        <section class="data-section">
+            <h2>📊 Airspace Status Overview</h2>
+            <div id="airspace-overview" class="overview-grid">
+                <div class="status-card" data-country="israel">
+                    <h3>🇮🇱 Israel (LLLL)</h3>
+                    <div class="status-info">
+                        <div class="metric">
+                            <span class="label">Active Flights:</span>
+                            <span class="value" id="israel-flights">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">NOTAMs:</span>
+                            <span class="value" id="israel-notams">--</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="status-card" data-country="jordan">
+                    <h3>🇯🇴 Jordan (OJAM)</h3>
+                    <div class="status-info">
+                        <div class="metric">
+                            <span class="label">Active Flights:</span>
+                            <span class="value" id="jordan-flights">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">NOTAMs:</span>
+                            <span class="value" id="jordan-notams">--</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="status-card" data-country="iraq">
+                    <h3>🇮🇶 Iraq (ORBI)</h3>
+                    <div class="status-info">
+                        <div class="metric">
+                            <span class="label">Active Flights:</span>
+                            <span class="value" id="iraq-flights">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">NOTAMs:</span>
+                            <span class="value" id="iraq-notams">--</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="status-card" data-country="iran">
+                    <h3>🇮🇷 Iran (OIIX)</h3>
+                    <div class="status-info">
+                        <div class="metric">
+                            <span class="label">Active Flights:</span>
+                            <span class="value" id="iran-flights">--</span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">NOTAMs:</span>
+                            <span class="value" id="iran-notams">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="data-section">
+            <h2>🚫 Recent Flight Disruptions</h2>
+            <div id="loading-flights" class="loading">Loading flight data...</div>
+            <div id="flights-container" class="data-container"></div>
+        </section>
+
+        <section class="data-section">
+            <h2>⚠️ Active NOTAMs (Notices to Airmen)</h2>
+            <div id="loading-notams" class="loading">Loading NOTAM data...</div>
+            <div id="notams-container" class="data-container"></div>
+        </section>
+
+        <section class="data-section info-section">
+            <h2>ℹ️ About This Tracker</h2>
+            <div class="info-content">
+                <h3>Data Sources (Free):</h3>
+                <ul>
+                    <li><strong>OpenSky Network:</strong> Real-time flight tracking data (open-source, crowd-sourced)</li>
+                    <li><strong>Federal Aviation Administration (FAA):</strong> NOTAM data via public APIs</li>
+                    <li><strong>ICAO Standards:</strong> International Civil Aviation Organization data formats</li>
+                </ul>
+                <h3>Coverage:</h3>
+                <ul>
+                    <li>🇮🇱 Israel (LLLL FIR - Flight Information Region)</li>
+                    <li>🇯🇴 Jordan (OJAM FIR)</li>
+                    <li>🇮🇶 Iraq (ORBI FIR)</li>
+                    <li>🇮🇷 Iran (OIIX FIR)</li>
+                </ul>
+                <h3>Update Frequency:</h3>
+                <p>Data automatically refreshes every 5 minutes to provide near real-time information.</p>
+                <h3>Limitations:</h3>
+                <p>This tracker uses free, publicly available data sources. Some military or restricted flight information may not be available. NOTAM data may have delays depending on source availability.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Flight Tracker for Middle East Airspace | Data refreshed every 5 minutes | Last update: <span id="footer-update-time">--</span></p>
+        <p class="disclaimer">⚠️ For informational purposes only. Not for navigation or operational use.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

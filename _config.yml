@@ -1,0 +1,5 @@
+# FTracking GitHub Pages Site Configuration
+theme: jekyll-theme-minimal
+title: Middle East Flight Tracker
+description: Real-time flight tracking and NOTAM monitoring for Israeli, Jordan, Iraqi, and Iranian airspace
+show_downloads: false
