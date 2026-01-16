@@ -20,6 +20,28 @@ This is a demonstration/educational project showing how to integrate with aviati
 
 Real-time flight tracking system for Middle East airspace regions including Israel, Jordan, Iraq, and Iran.
 
+## 🔑 API Key Requirements
+
+### Quick Answer:
+- **Flight Tracking**: ✅ NO API KEY REQUIRED (uses free OpenSky Network API)
+- **NOTAM Data**: ❌ API KEYS REQUIRED (from FAA, ICAO, or regional aviation authorities)
+
+### Where to Store API Keys:
+1. Open `script.js` 
+2. Find the `CONFIG.API_KEYS` section (lines ~6-15)
+3. Add your API keys there:
+   ```javascript
+   API_KEYS: {
+       OPENSKY_USERNAME: '',        // Optional - for higher rate limits
+       OPENSKY_PASSWORD: '',        // Optional - for higher rate limits
+       FAA_NOTAM_API_KEY: '',      // Required for FAA NOTAMs
+       ICAO_API_KEY: '',           // Required for ICAO NOTAMs
+   }
+   ```
+4. See [Configuration section](#-configuration) below for detailed instructions
+
+**Important**: Never commit API keys to version control. For production, use environment variables or a backend proxy server.
+
 ## 🌍 Coverage
 
 This tracker monitors the following Flight Information Regions (FIRs):
@@ -113,6 +135,58 @@ open index.html
 3. Navigate to `http://localhost:8000` (or the appropriate URL)
 
 ## 🔧 Configuration
+
+### API Keys and Authentication
+
+#### Flight Data (OpenSky Network)
+**Status**: ✅ NO API KEY REQUIRED for basic usage
+
+- The OpenSky Network API is free and works without authentication
+- **Optional**: Create a free account at [OpenSky Network](https://opensky-network.org/) for higher rate limits
+- If you have an account, add credentials to `CONFIG.API_KEYS` in `script.js`:
+  ```javascript
+  API_KEYS: {
+      OPENSKY_USERNAME: 'your-username',
+      OPENSKY_PASSWORD: 'your-password',
+  }
+  ```
+
+#### NOTAM Data
+**Status**: ❌ API KEYS REQUIRED (not included)
+
+Real NOTAM data requires authenticated access to official aviation authority APIs.
+
+**How to Configure NOTAM API Keys:**
+
+1. **Obtain API Credentials** from official sources:
+   - **FAA NOTAM Search API**: Register at [https://notams.aim.faa.gov/](https://notams.aim.faa.gov/)
+   - **ICAO**: Contact ICAO for credentials and authorization
+   - **Regional Aviation Authorities**: Contact your regional authority
+
+2. **Store API Keys Securely**:
+   - **Development**: Copy `config.example.js` to `config.js` and add your keys
+   - **Production**: Use environment variables or a secure backend service
+   - **NEVER** commit API keys to version control (already in `.gitignore`)
+
+3. **Add Keys to Configuration**:
+   Open `script.js` and add your API keys to the `CONFIG.API_KEYS` section:
+   ```javascript
+   API_KEYS: {
+       FAA_NOTAM_API_KEY: 'your-faa-api-key-here',
+       ICAO_API_KEY: 'your-icao-api-key-here',
+   }
+   ```
+
+4. **Implement API Integration**:
+   - The `fetchNOTAMData()` function checks for API keys
+   - You'll need to implement the actual API calls based on your provider's documentation
+   - See the TODO comment in `script.js` for where to add integration code
+
+**Security Best Practices:**
+- For production, use a backend server to proxy API calls and keep keys secure
+- Never expose API keys in client-side code that's publicly accessible
+- Use environment variables or secure configuration management
+- Rotate API keys regularly
 
 ### Adjusting Update Frequency
 

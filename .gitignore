@@ -29,3 +29,8 @@ build/
 # Environment variables
 .env
 .env.local
+
+# API Configuration (contains sensitive keys)
+config.js
+api-keys.js
+secrets.js

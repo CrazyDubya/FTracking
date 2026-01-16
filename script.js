@@ -1,6 +1,24 @@
 // Flight Tracker Configuration
 const CONFIG = {
     UPDATE_INTERVAL: 5 * 60 * 1000, // 5 minutes in milliseconds
+    
+    // API Keys - Store your API keys here
+    // IMPORTANT: For production, use environment variables or a secure backend
+    // Never commit API keys to version control
+    API_KEYS: {
+        // OpenSky Network - NO KEY REQUIRED for basic usage
+        // For higher rate limits, create a free account at https://opensky-network.org/
+        // and add credentials here (optional)
+        OPENSKY_USERNAME: '', // Optional - leave empty for anonymous access
+        OPENSKY_PASSWORD: '', // Optional - leave empty for anonymous access
+        
+        // NOTAM APIs - KEYS REQUIRED
+        // Get API keys from official aviation authorities
+        FAA_NOTAM_API_KEY: '', // Get from: https://notams.aim.faa.gov/ (requires registration)
+        ICAO_API_KEY: '',       // Get from: ICAO (requires credentials and authorization)
+        // Add additional NOTAM API keys as needed
+    },
+    
     AIRSPACE_BOUNDARIES: {
         israel: {
             name: 'Israel',
@@ -135,10 +153,22 @@ async function fetchFlightData() {
             
             // OpenSky Network API - free, no authentication required
             // Note: CORS may block requests from some browsers/extensions
+            // Optional: Add credentials for higher rate limits (see CONFIG.API_KEYS)
             const url = `https://opensky-network.org/api/states/all?lamin=${bounds.minLat}&lomin=${bounds.minLon}&lamax=${bounds.maxLat}&lomax=${bounds.maxLon}`;
             
+            // Prepare fetch options
+            const fetchOptions = {};
+            
+            // If OpenSky credentials are provided, add Basic Auth (optional)
+            if (CONFIG.API_KEYS.OPENSKY_USERNAME && CONFIG.API_KEYS.OPENSKY_PASSWORD) {
+                const credentials = btoa(`${CONFIG.API_KEYS.OPENSKY_USERNAME}:${CONFIG.API_KEYS.OPENSKY_PASSWORD}`);
+                fetchOptions.headers = {
+                    'Authorization': `Basic ${credentials}`
+                };
+            }
+            
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, fetchOptions);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -276,28 +306,44 @@ async function fetchNOTAMData() {
     try {
         loadingElement.style.display = 'block';
         
-        // NOTAM data requires authenticated access to official aviation APIs
-        // Real NOTAM APIs require proper credentials and authorization
-        // - FAA NOTAM API: https://notams.aim.faa.gov/notamSearch/ (requires authentication)
-        // - ICAO APIs (requires credentials and authorization)
-        // - Regional aviation authority APIs (requires credentials)
+        // Check if NOTAM API keys are configured
+        const hasNotamApiKey = CONFIG.API_KEYS.FAA_NOTAM_API_KEY || CONFIG.API_KEYS.ICAO_API_KEY;
         
-        // Set all NOTAM counts to 0 since we don't have real data
-        Object.keys(CONFIG.AIRSPACE_BOUNDARIES).forEach(country => {
-            document.getElementById(`${country}-notams`).textContent = 'N/A';
-        });
-        
-        // Display message that real NOTAM data is not available
-        notamsContainer.innerHTML = createErrorState(
-            '⚠️ NOTAM data unavailable. This application requires authenticated access to official aviation authority APIs to display real NOTAM data. ' +
-            'Do not use this application for operational decisions. Always consult official sources like your national aviation authority for current NOTAMs.'
-        );
+        if (!hasNotamApiKey) {
+            // No API keys configured
+            // Set all NOTAM counts to N/A
+            Object.keys(CONFIG.AIRSPACE_BOUNDARIES).forEach(country => {
+                document.getElementById(`${country}-notams`).textContent = 'N/A';
+            });
+            
+            // Display message that API keys are required
+            notamsContainer.innerHTML = createErrorState(
+                '⚠️ NOTAM DATA UNAVAILABLE: No API keys configured. ' +
+                'To display real NOTAM data, you need to: ' +
+                '1) Obtain API credentials from official aviation authorities (FAA, ICAO, or regional authorities). ' +
+                '2) Add your API keys to the CONFIG.API_KEYS section in script.js. ' +
+                '3) For security, use a backend server or environment variables for production. ' +
+                'Do not use this application for operational decisions. Always consult official sources for current NOTAMs.'
+            );
+        } else {
+            // API keys are configured - attempt to fetch real NOTAM data
+            // TODO: Implement actual NOTAM API integration here
+            // Example structure:
+            // const notams = await fetchRealNOTAMs(CONFIG.API_KEYS.FAA_NOTAM_API_KEY);
+            // displayNOTAMs(notams);
+            
+            notamsContainer.innerHTML = createErrorState(
+                '⚠️ NOTAM API integration not yet implemented. ' +
+                'API keys are configured but the NOTAM fetching logic needs to be completed. ' +
+                'This requires integration with specific NOTAM API endpoints (FAA, ICAO, etc.).'
+            );
+        }
         
         loadingElement.style.display = 'none';
         
     } catch (error) {
         console.error('Error fetching NOTAM data:', error);
-        notamsContainer.innerHTML = createErrorState('NOTAM data requires authenticated access. Configure API keys and credentials for official aviation APIs.');
+        notamsContainer.innerHTML = createErrorState('Error accessing NOTAM data. Check API keys and network connection.');
         loadingElement.style.display = 'none';
     }
 }
