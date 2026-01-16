@@ -268,7 +268,7 @@ function displayFlights(results) {
     applyFilters();
 }
 
-// Fetch NOTAM data (simulated for demonstration - real NOTAM APIs often require authentication)
+// Fetch NOTAM data - requires authenticated API access
 async function fetchNOTAMData() {
     const notamsContainer = document.getElementById('notams-container');
     const loadingElement = document.getElementById('loading-notams');
@@ -276,23 +276,28 @@ async function fetchNOTAMData() {
     try {
         loadingElement.style.display = 'block';
         
-        // Note: Real NOTAM APIs (like FAA's) often require authentication
-        // For demonstration, we'll create sample data structure and show how to integrate
+        // NOTAM data requires authenticated access to official aviation APIs
+        // Real NOTAM APIs require proper credentials and authorization
+        // - FAA NOTAM API: https://notams.aim.faa.gov/notamSearch/ (requires authentication)
+        // - ICAO APIs (requires credentials and authorization)
+        // - Regional aviation authority APIs (requires credentials)
         
-        // In production, you would call:
-        // - FAA NOTAM API: https://notams.aim.faa.gov/notamSearch/
-        // - ICAO APIs (if available with proper credentials)
+        // Set all NOTAM counts to 0 since we don't have real data
+        Object.keys(CONFIG.AIRSPACE_BOUNDARIES).forEach(country => {
+            document.getElementById(`${country}-notams`).textContent = 'N/A';
+        });
         
-        // Simulated NOTAM data for demonstration
-        const notamData = await generateSampleNOTAMs();
-        
-        displayNOTAMs(notamData);
+        // Display message that real NOTAM data is not available
+        notamsContainer.innerHTML = createErrorState(
+            '⚠️ NOTAM data unavailable. This application requires authenticated access to official aviation authority APIs to display real NOTAM data. ' +
+            'Do not use this application for operational decisions. Always consult official sources like your national aviation authority for current NOTAMs.'
+        );
         
         loadingElement.style.display = 'none';
         
     } catch (error) {
         console.error('Error fetching NOTAM data:', error);
-        notamsContainer.innerHTML = createErrorState('NOTAM data requires authenticated access. Configure API keys in production.');
+        notamsContainer.innerHTML = createErrorState('NOTAM data requires authenticated access. Configure API keys and credentials for official aviation APIs.');
         loadingElement.style.display = 'none';
     }
 }
@@ -331,60 +336,6 @@ function extractAirportCodes(notamText) {
     }
     
     return codes;
-}
-
-// Generate sample NOTAMs (replace with real API in production)
-async function generateSampleNOTAMs() {
-    const countries = Object.keys(CONFIG.AIRSPACE_BOUNDARIES);
-    const notams = [];
-    
-    // Get airports for each country
-    const airportsByCountry = {
-        israel: ['LLBG', 'LLOV', 'LLER', 'LLHA'],
-        jordan: ['OJAI', 'OJAM', 'OJAQ'],
-        iraq: ['ORBI', 'ORBB', 'ORMM', 'ORSU'],
-        iran: ['OIII', 'OIIE', 'OISS', 'OIAW', 'OIMM', 'OIKB', 'OIFM']
-    };
-    
-    // Update NOTAM counts
-    countries.forEach(country => {
-        const count = Math.floor(Math.random() * 5);
-        document.getElementById(`${country}-notams`).textContent = count;
-        
-        for (let i = 0; i < count; i++) {
-            // Select a random airport for this country
-            const countryAirports = airportsByCountry[country] || [];
-            const airportCode = countryAirports[Math.floor(Math.random() * countryAirports.length)];
-            const airport = CONFIG.AIRPORTS[airportCode];
-            
-            notams.push({
-                country: country,
-                id: `${CONFIG.AIRSPACE_BOUNDARIES[country].icao}-${Date.now()}-${i}`,
-                airportCode: airportCode,
-                airport: airport,
-                type: ['Airspace Restriction', 'Airport Closure', 'Navigation Aid Outage', 'Military Exercise'][Math.floor(Math.random() * 4)],
-                description: generateNOTAMDescription(airport),
-                effectiveDate: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
-                expiryDate: new Date(Date.now() + Math.random() * 14 * 24 * 60 * 60 * 1000)
-            });
-        }
-    });
-    
-    return notams;
-}
-
-function generateNOTAMDescription(airport) {
-    const airportName = airport ? airport.name : 'the airport';
-    const descriptions = [
-        `Temporary flight restrictions in effect at ${airportName} due to special operations.`,
-        `Runway closure for maintenance at ${airportName} - use alternate runway.`,
-        `Navigation aid temporarily out of service at ${airportName}.`,
-        `Increased military activity near ${airportName} - exercise caution.`,
-        `Airspace temporarily restricted around ${airportName} - prior permission required.`,
-        `${airportName} operating with reduced capacity.`,
-        `Temporary obstacles in vicinity of ${airportName}.`
-    ];
-    return descriptions[Math.floor(Math.random() * descriptions.length)];
 }
 
 // Display NOTAM data

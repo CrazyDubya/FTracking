@@ -9,8 +9,11 @@
 <body>
     <header>
         <h1>✈️ Middle East Flight Tracker</h1>
-        <p class="subtitle">Real-time Flight Cancellations and NOTAMs for Israeli, Jordanian, Iraqi, and Iranian Airspace</p>
+        <p class="subtitle">Real-time Flight Tracking for Israeli, Jordanian, Iraqi, and Iranian Airspace</p>
         <div class="last-updated">Last Updated: <span id="last-update-time">Loading...</span></div>
+        <div class="safety-warning" style="background: #ef4444; color: white; padding: 1rem; margin-top: 1rem; border-radius: 0.5rem; font-weight: 600;">
+            ⚠️ CRITICAL SAFETY WARNING: This is an informational tool only. DO NOT use for operational decisions, flight planning, or navigation. Always consult official aviation authorities and approved sources for flight operations.
+        </div>
     </header>
 
     <main>
@@ -102,7 +105,10 @@
         </section>
 
         <section class="data-section">
-            <h2>⚠️ Active NOTAMs (Notices to Airmen)</h2>
+            <h2>⚠️ NOTAMs (Notices to Airmen)</h2>
+            <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+                <strong style="color: #ef4444;">⚠️ NOTAM DATA UNAVAILABLE:</strong> This application does not have access to official NOTAM data. Real NOTAMs require authenticated access to official aviation authority APIs. For current NOTAMs, consult your national aviation authority or official sources.
+            </div>
             <div id="loading-notams" class="loading">Loading NOTAM data...</div>
             <div id="notams-container" class="data-container"></div>
         </section>
@@ -110,11 +116,22 @@
         <section class="data-section info-section">
             <h2>ℹ️ About This Tracker</h2>
             <div class="info-content">
+                <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem;">
+                    <h3 style="color: #ef4444; margin-top: 0;">⚠️ CRITICAL LIMITATIONS</h3>
+                    <p style="color: #1e293b; font-weight: 600;">This tracker displays ONLY real flight data from OpenSky Network. NOTAM data is NOT available as it requires authenticated access to official aviation authority APIs.</p>
+                    <p style="color: #1e293b; font-weight: 600;">DO NOT USE THIS APPLICATION FOR:</p>
+                    <ul style="color: #1e293b; font-weight: 600;">
+                        <li>Operational flight decisions</li>
+                        <li>Flight planning or navigation</li>
+                        <li>Safety-critical operations</li>
+                        <li>Emergency response</li>
+                    </ul>
+                    <p style="color: #1e293b; font-weight: 600;">ALWAYS consult official aviation authorities and approved sources for operational information.</p>
+                </div>
                 <h3>Data Sources (Free):</h3>
                 <ul>
-                    <li><strong>OpenSky Network:</strong> Real-time flight tracking data (open-source, crowd-sourced)</li>
-                    <li><strong>Federal Aviation Administration (FAA):</strong> NOTAM data via public APIs</li>
-                    <li><strong>ICAO Standards:</strong> International Civil Aviation Organization data formats</li>
+                    <li><strong>OpenSky Network:</strong> Real-time flight tracking data (open-source, crowd-sourced). This is REAL data.</li>
+                    <li><strong>NOTAMs:</strong> NOT AVAILABLE - Requires authenticated access to official aviation authority APIs (FAA, ICAO, regional authorities)</li>
                 </ul>
                 <h3>Coverage:</h3>
                 <ul>
@@ -124,9 +141,10 @@
                     <li>🇮🇷 Iran (OIIX FIR)</li>
                 </ul>
                 <h3>Update Frequency:</h3>
-                <p>Data automatically refreshes every 5 minutes to provide near real-time information.</p>
-                <h3>Limitations:</h3>
-                <p>This tracker uses free, publicly available data sources. Some military or restricted flight information may not be available. NOTAM data may have delays depending on source availability.</p>
+                <p>Flight data automatically refreshes every 5 minutes from OpenSky Network.</p>
+                <h3>Data Authenticity:</h3>
+                <p><strong>Flight data:</strong> Real data from OpenSky Network (subject to their coverage and data quality)</p>
+                <p><strong>NOTAM data:</strong> NOT AVAILABLE - Requires API credentials from official aviation authorities</p>
             </div>
         </section>
     </main>
